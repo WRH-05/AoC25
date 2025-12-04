@@ -18,3 +18,4 @@ with open("d3/d3p1.txt", "r") as file:
             
 print(total_sum)
 
+print(len(line))
