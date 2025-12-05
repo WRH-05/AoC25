@@ -1,57 +1,39 @@
 id_ranges = []
-available_ids = []
-fresh_ranges = set()  # Store range indices that have fresh IDs
-fresh_ids = 0
-rotten_ids = 0
 
 with open("d5/d5p1.txt", "r") as file:
-    lines = file.readlines() 
-
-for line in lines:
-    line = line.strip()
-    if line == "": 
-        break
-    if "-" in line:
-        id_ranges.append(list(line.split("-")))
-
-start_index = len(id_ranges) + 1  
-for i in range(start_index, len(lines)):
-    line = lines[i].strip()
-    if line == "":
-        continue
-    if "-" not in line: 
-        available_ids.append(line)
-
-# Track which range indices have fresh IDs
-for i in available_ids:
-    is_fresh = False
-    for idx, j in enumerate(id_ranges):
-        if int(j[0]) < int(i) < int(j[1]):
-            is_fresh = True
-            fresh_ids += 1
-            fresh_ranges.add(idx)  # Mark this range as having fresh IDs
+    for line in file:
+        line = line.strip()
+        if line == "":
             break
+        if "-" in line:
+            parts = line.split("-")
+            id_ranges.append((int(parts[0]), int(parts[1])))
+
+print(f"Fresh ingredient ID ranges:")
+for r in id_ranges:
+    print(f"  {r[0]}-{r[1]}")
+
+# Sort ranges by start value
+id_ranges.sort()
+
+# Merge overlapping ranges
+merged = [id_ranges[0]]
+
+for current_start, current_end in id_ranges[1:]:
+    last_start, last_end = merged[-1]
     
-    if not is_fresh:
-        rotten_ids += 1
+    # If ranges overlap or are adjacent, merge them
+    if current_start <= last_end + 1:
+        merged[-1] = (last_start, max(last_end, current_end))
+    else:
+        merged.append((current_start, current_end))
 
-# Now calculate the union of all ranges with fresh IDs
-all_ids_in_ranges = set()
+# Calculate total unique IDs
+total_fresh = 0
+for start, end in merged:
+    # Count IDs from start to end (inclusive)
+    count = end - start + 1
+    total_fresh += count
+    print(f"Range ({start}-{end}): {count} IDs")
 
-print(f"fresh ids: {fresh_ids}")
-print(f"rotten ids: {rotten_ids}")
-print(f"\nRanges with fresh IDs:")
-
-for range_idx in sorted(fresh_ranges):
-    j = id_ranges[range_idx]
-    range_start = int(j[0])
-    range_end = int(j[1])
-    range_length = range_end - range_start - 1
-    
-    # Add all IDs in this range to the union set
-    for num in range(range_start + 1, range_end):
-        all_ids_in_ranges.add(num)
-    
-    print(f"Range {range_idx} ({range_start}-{range_end}): length = {range_length}")
-
-print(f"\nTotal unique IDs across all ranges (no overlaps counted twice): {len(all_ids_in_ranges)}")
+print(f"\nTotal fresh ingredient IDs: {total_fresh}")
