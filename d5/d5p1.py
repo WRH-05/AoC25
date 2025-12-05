@@ -1,3 +1,7 @@
+import time
+
+start_time = time.time()
+
 id_ranges = []
 
 with open("d5/d5p1.txt", "r") as file:
@@ -37,3 +41,7 @@ for start, end in merged:
     print(f"Range ({start}-{end}): {count} IDs")
 
 print(f"\nTotal fresh ingredient IDs: {total_fresh}")
+
+end_time = time.time()
+elapsed_time = (end_time - start_time) * 1000
+print(f"Execution time: {elapsed_time:.2f} ms")
