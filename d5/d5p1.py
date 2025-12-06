@@ -3,44 +3,36 @@ import time
 start_time = time.time()
 
 id_ranges = []
+available_ids = []
+fresh_count = 0
 
 with open("d5/d5p1.txt", "r") as file:
-    for line in file:
-        line = line.strip()
-        if line == "":
+    lines = file.readlines()
+
+for line in lines:
+    line = line.strip()
+    if line == "":
+        break
+    if "-" in line:
+        parts = line.split("-")
+        id_ranges.append((int(parts[0]), int(parts[1])))
+
+start_index = len(id_ranges) + 1
+for i in range(start_index, len(lines)):
+    line = lines[i].strip()
+    if line:
+        available_ids.append(int(line))
+
+for available_id in available_ids:
+    is_fresh = False
+    for start, end in id_ranges:
+        if start <= available_id <= end:
+            is_fresh = True
             break
-        if "-" in line:
-            parts = line.split("-")
-            id_ranges.append((int(parts[0]), int(parts[1])))
+    if is_fresh:
+        fresh_count += 1
 
-print(f"Fresh ingredient ID ranges:")
-for r in id_ranges:
-    print(f"  {r[0]}-{r[1]}")
-
-# Sort ranges by start value
-id_ranges.sort()
-
-# Merge overlapping ranges
-merged = [id_ranges[0]]
-
-for current_start, current_end in id_ranges[1:]:
-    last_start, last_end = merged[-1]
-    
-    # If ranges overlap or are adjacent, merge them
-    if current_start <= last_end + 1:
-        merged[-1] = (last_start, max(last_end, current_end))
-    else:
-        merged.append((current_start, current_end))
-
-# Calculate total unique IDs
-total_fresh = 0
-for start, end in merged:
-    # Count IDs from start to end (inclusive)
-    count = end - start + 1
-    total_fresh += count
-    print(f"Range ({start}-{end}): {count} IDs")
-
-print(f"\nTotal fresh ingredient IDs: {total_fresh}")
+print(f"Fresh ingredient IDs: {fresh_count}")
 
 end_time = time.time()
 elapsed_time = (end_time - start_time) * 1000
